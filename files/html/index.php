@@ -16,43 +16,36 @@
 <pre>
 <?php
 function waf1($inject) {
-    return preg_match("/select|update|delete|drop|insert|where|\./i",$inject);
+    preg_match("/select|update|delete|drop|insert|where|\./i",$inject) && die('return preg_match("/select|update|delete|drop|insert|where|\./i",$inject);');
 }
 
 function waf2($inject) {
-    return strstr($inject, "set") && strstr($inject, "prepare");
+    strstr($inject, "set") && strstr($inject, "prepare") && die('strstr($inject, "set") && strstr($inject, "prepare")');
 }
 
 if(isset($_GET['inject'])) {
     $id = $_GET['inject'];
+    waf1($id);
+    waf2($id);
+    $mysqli = new mysqli("127.0.0.1","root","root","supersqli");
+    //多条sql语句
+    $sql = "select * from `words` where id = '$id';";
 
-    if(waf1($id)) {
-        echo 'return preg_match("/select|update|delete|drop|insert|where|\./i",$inject);';
-    } else {
-        if(waf2($id)) {
-            echo 'strstr($inject, "set") && strstr($inject, "prepare");';
-        } else {
-            $mysqli = new mysqli("127.0.0.1","root","root","supersqli");
-            //多条sql语句
-            $sql = "select * from `words` where id = '$id';";
-
-            if ($mysqli->multi_query($sql)){//使用multi_query()执行一条或多条sql语句
-            	do{
-            		if ($rs = $mysqli->store_result()){//store_result()方法获取第一条sql语句查询结果
-            			while ($row=$rs->fetch_row()){
-            				var_dump($row);
-            				echo "<br>";
-            			}
-            			$rs->Close(); //关闭结果集
-            			if ($mysqli->more_results()){  //判断是否还有更多结果集
-            				echo "<hr>";
-            			}
-            		}
-            	}while($mysqli->next_result()); //next_result()方法获取下一结果集，返回bool值
-            }
-            $mysqli->close();  //关闭数据库连接
+    if ($mysqli->multi_query($sql)){//使用multi_query()执行一条或多条sql语句
+      do{
+        if ($rs = $mysqli->store_result()){//store_result()方法获取第一条sql语句查询结果
+          while ($row = $rs->fetch_row()){
+            var_dump($row);
+            echo "<br>";
+          }
+          $rs->Close(); //关闭结果集
+          if ($mysqli->more_results()){  //判断是否还有更多结果集
+            echo "<hr>";
+          }
         }
+      }while($mysqli->next_result()); //next_result()方法获取下一结果集，返回bool值
     }
+    $mysqli->close();  //关闭数据库连接
 }
 
 
