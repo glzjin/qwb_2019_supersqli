@@ -31,7 +31,9 @@ if(isset($_GET['inject'])) {
     //多条sql语句
     $sql = "select * from `words` where id = '$id';";
 
-    if ($mysqli->multi_query($sql)){//使用multi_query()执行一条或多条sql语句
+    $res = $mysqli->multi_query($sql);
+
+    if ($res){//使用multi_query()执行一条或多条sql语句
       do{
         if ($rs = $mysqli->store_result()){//store_result()方法获取第一条sql语句查询结果
           while ($row = $rs->fetch_row()){
@@ -44,6 +46,8 @@ if(isset($_GET['inject'])) {
           }
         }
       }while($mysqli->next_result()); //next_result()方法获取下一结果集，返回bool值
+    } else {
+      echo "error ".$mysqli->errno." : ".$mysqli->error;
     }
     $mysqli->close();  //关闭数据库连接
 }
